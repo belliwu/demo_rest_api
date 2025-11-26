@@ -73,6 +73,21 @@ export const initDatabase = () => {
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS events (
+      id INTEGER PRIMARY KEY,
+      title TEXT NOT NULL,
+      description TEXT,
+      date TEXT NOT NULL,
+      location TEXT,
+      user_id INTEGER NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id);
+    CREATE INDEX IF NOT EXISTS idx_events_date ON events(date);
   `);
 };
 

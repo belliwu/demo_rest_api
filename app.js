@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import authRoutes from "./src/routes/authRoutes.js";
+import eventRoutes from "./src/routes/eventRoutes.js";
 import { initDatabase } from "./src/config/database.js";
 import { errorHandler, notFoundHandler } from "./src/middleware/errorHandler.js";
 
@@ -33,7 +34,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 掛載路由
-app.use("/api/user", authRoutes);
+app.use("/api/users", authRoutes);
+app.use("/api/events", eventRoutes);
 
 // 404 處理（必須在所有路由之後）
 app.use(notFoundHandler);

@@ -5,7 +5,7 @@ import { authenticate } from "../middleware/auth.js";
 /**
  * authRoutes
  * -------------------------------------------------
- * 以 Router 模組化管理 `/api/auth/*` 相關路徑。
+ * 以 Router 模組化管理 `/api/user/*` 相關路徑。
  * 此檔案僅負責「HTTP 方法 + 路徑」到對應 controller 的映射，
  * 並在需要權限控制的路由前串上對應 middleware。
  */
