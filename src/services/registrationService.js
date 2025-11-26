@@ -1,6 +1,5 @@
 import { db } from "../config/database.js";
 import { validateRegistrationData, sanitizeRegistration } from "../models/Registration.js";
-import { getEventById } from "./eventService.js";
 
 /**
  * Registration Service

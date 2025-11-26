@@ -22,14 +22,14 @@ router.use(authenticate);
 
 /**
  * 報名路由：
- * - POST /events/:eventId/register        ：報名活動
- * - DELETE /events/:eventId/register      ：取消報名
  * - GET /events/:eventId/registrations    ：查詢活動報名名單（活動建立者或可選開放）
  * - GET /me/registrations                 ：查詢使用者自己報名的活動
+ * - POST /events/:eventId/register        ：報名活動 
+ * - DELETE /events/:eventId/register      ：取消報名
  */
-router.post("/events/:eventId/register", registerEvent);
-router.delete("/events/:eventId/register", unregisterEvent);
 router.get("/events/:eventId/registrations", getEventRegistrations);
 router.get("/me/registrations", getMyRegistrations);
+router.post("/events/:eventId/register", registerEvent);
+router.delete("/events/:eventId/register", unregisterEvent);
 
 export default router;
