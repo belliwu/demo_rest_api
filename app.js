@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import authRoutes from "./src/routes/authRoutes.js";
 import eventRoutes from "./src/routes/eventRoutes.js";
+import registrationRoutes from "./src/routes/registrationRoutes.js";
 import { initDatabase } from "./src/config/database.js";
 import { errorHandler, notFoundHandler } from "./src/middleware/errorHandler.js";
 
@@ -36,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 // 掛載路由
 app.use("/api/users", authRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api", registrationRoutes);
 
 // 404 處理（必須在所有路由之後）
 app.use(notFoundHandler);
@@ -46,6 +48,9 @@ app.use(errorHandler);
 // 啟動伺服器
 app.listen(PORT, () => {
   console.log(`✓ 伺服器運行於 http://localhost:${PORT}`);
+  console.log(`✓ Auth API: http://localhost:${PORT}/api/user`);
+  console.log(`✓ Events API: http://localhost:${PORT}/api/events`);
+  console.log(`✓ Registration API: http://localhost:${PORT}/api`);
 });
 
 export default app;
