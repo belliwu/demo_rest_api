@@ -28,31 +28,48 @@ import { generateToken } from "../utils/jwtHelper.js";
  * POST /api/user/signup
  */
 export const signup = (req, res) => {
+  console.log("\n📝 === 開始註冊流程 ===");
+  console.log("請求 Body:", { username: req.body.username, email: req.body.email, password: "***" });
+  
   try {
     const { username, email, password } = req.body;
 
     // Step 1. 驗證輸入資料
+    console.log("Step 1: 驗證輸入資料");
     const validation = validateUserPayload({ username, email, password });
     if (!validation.valid) {
+      console.log("❌ 驗證失敗:", validation.errors);
+      console.log("📝 === 註冊流程失敗 ===\n");
       return sendError(res, "輸入資料驗證失敗", 400, validation.errors);
     }
+    console.log("✅ 驗證通過");
 
     // Step 2. 檢查是否已有相同 email 的帳號
+    console.log("Step 2: 檢查 Email 是否存在");
     const existingUser = findUserByEmail(email);
     if (existingUser) {
+      console.log("❌ Email 已被註冊:", email);
+      console.log("📝 === 註冊流程失敗 ===\n");
       return sendError(res, "電子郵件已被使用，請改用其他帳號", 409);
     }
+    console.log("✅ Email 可用");
 
     // Step 3. 建立用戶並寫入 SQLite
+    console.log("Step 3: 建立新用戶");
     const newUser = createUserRecord({ username, email, password });
+    console.log("✅ 用戶建立成功, ID:", newUser.id);
 
     // Step 4. 產生 JWT token
     // -------------------------------------------------
     // 註冊成功後自動登入，產生 token 供後續使用
+    console.log("Step 4: 產生 JWT token");
     const token = generateToken({ userId: newUser.id, email: newUser.email });
+    console.log("✅ Token 產生成功");
 
     // Step 5. 回傳不含密碼的用戶資料與 token
     const sanitizedUser = sanitizeUserRecord(newUser);
+    console.log("Step 5: 回傳註冊成功");
+    console.log("📝 === 註冊流程完成 ===\n");
 
     return sendSuccess(
       res,
@@ -64,7 +81,10 @@ export const signup = (req, res) => {
       201
     );
   } catch (error) {
-    console.error("註冊錯誤詳情:", error);
+    console.error("❌ 註冊過程發生錯誤:");
+    console.error("錯誤訊息:", error.message);
+    console.error("完整錯誤:", error);
+    console.log("📝 === 註冊流程失敗 ===\n");
     return sendError(res, "註冊過程中發生錯誤", 500);
   }
 };
@@ -74,11 +94,17 @@ export const signup = (req, res) => {
  * POST /api/user/login
  */
 export const login = (req, res) => {
+  console.log("\n🔑 === 開始登入流程 ===");
+  console.log("請求 Body:", { email: req.body.email, password: "***" });
+  
   try {
     const { email, password } = req.body;
 
     // Step 1. 驗證必填欄位
+    console.log("Step 1: 驗證必填欄位");
     if (!email || !password) {
+      console.log("❌ 缺少必填欄位");
+      console.log("🔑 === 登入流程失敗 ===\n");
       return sendError(res, "電子郵件和密碼為必填", 400);
     }
 

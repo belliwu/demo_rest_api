@@ -27,15 +27,23 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
  * - token 本身不加密，只是簽名，任何人都可解碼查看內容
  */
 export const generateToken = ({ userId, email }) => {
+  console.log("\n🎫 === 開始產生 Token ===");
+  console.log("📝 Payload:", { userId, email });
+  
   if (!userId || !email) {
+    console.log("❌ Payload 缺少必要欄位");
     throw new Error("Token payload must include userId and email");
   }
 
   const tokenPayload = { userId, email };
-
-  return jwt.sign(tokenPayload, JWT_SECRET, {
+  const token = jwt.sign(tokenPayload, JWT_SECRET, {
     expiresIn: JWT_EXPIRES_IN,
   });
+  
+  console.log("✅ Token 產生成功 (前30字元):", token.substring(0, 30) + "...");
+  console.log("🎫 === Token 產生完成 ===\n");
+  
+  return token;
 };
 
 /**
@@ -73,10 +81,20 @@ export const sendTokenResponse = (res, payload, statusCode = 200, message = "Suc
  * - 成功則回傳原始 payload（包含 userId 等資訊）
  */
 export const verifyToken = (token) => {
+  console.log("\n🔍 === 開始驗證 Token ===");
+  console.log("🎫 Token (前30字元):", token.substring(0, 30) + "...");
+  
   try {
-    return jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    console.log("✅ Token 驗證成功");
+    console.log("📝 解碼結果:", decoded);
+    console.log("🔍 === Token 驗證完成 ===\n");
+    return decoded;
   } catch (error) {
-    // Token 無效或過期
+    console.error("❌ Token 驗證失敗:");
+    console.error("錯誤類型:", error.name);
+    console.error("錯誤訊息:", error.message);
+    console.log("🔍 === Token 驗證失敗 ===\n");
     return null;
   }
 };

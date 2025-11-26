@@ -31,11 +31,16 @@ import { sendSuccess, sendError } from "../utils/response.js";
  * POST /api/events
  */
 export const createEvent = (req, res) => {
+  console.log("\n➕ === 開始建立事件 ===");
+  console.log("請求 Body:", req.body);
+  console.log("當前用戶:", req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無");
+  
   try {
     const { title, description, date, location } = req.body;
     const userId = req.user.id; // 從 authenticate middleware 取得
 
     // Step 1. 驗證輸入資料
+    console.log("Step 1: 驗證輸入資料");
     const validation = validateEventPayload({ title, description, date, location });
     if (!validation.valid) {
       return sendError(res, "輸入資料驗證失敗", 400, validation.errors);
@@ -70,11 +75,17 @@ export const createEvent = (req, res) => {
  * - mine: true/false (是否只取得當前使用者的事件)
  */
 export const getEvents = (req, res) => {
+  console.log("\n📋 === 開始取得事件列表 ===");
+  console.log("查詢參數:", req.query);
+  console.log("當前用戶:", req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無");
+  
   try {
     const { mine } = req.query;
     const userId = mine === "true" ? req.user.id : null;
+    console.log("過濾條件:", mine === "true" ? "只顯示我的事件" : "顯示所有事件");
 
     const events = getAllEvents(userId);
+    console.log("✅ 找到 " + events.length + " 個事件");
     const sanitizedEvents = events.map(sanitizeEventRecord);
 
     return sendSuccess(res, { events: sanitizedEvents });
