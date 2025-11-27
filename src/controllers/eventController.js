@@ -9,6 +9,8 @@ import {
   isEventOwner,
 } from "../services/eventService.js";
 import { sendSuccess, sendError } from "../utils/response.js";
+import fs from "fs";
+import path from "path";
 
 /**
  * Event Controller
@@ -32,30 +34,36 @@ import { sendSuccess, sendError } from "../utils/response.js";
  */
 export const createEvent = (req, res) => {
   console.log("\n➕ === 開始建立事件 ===");
-  console.log("請求 Body:", req.body);
-  console.log("當前用戶:", req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無");
-  
   try {
     const { title, description, date, location } = req.body;
-    const userId = req.user.id; // 從 authenticate middleware 取得
+    const userId = req.user.id;
 
-    // Step 1. 驗證輸入資料
-    console.log("Step 1: 驗證輸入資料");
+    // 如果有上傳檔案，組成公開可用的相對 URL (public/images/<filename>)
+    let image = null;
+    if (req.file) {
+      image = `/images/${req.file.filename}`;
+      console.log("上傳的圖檔:", req.file.filename);
+    }
+
     const validation = validateEventPayload({ title, description, date, location });
     if (!validation.valid) {
+      // 若上傳了檔案但驗證不通過，刪除剛上傳的檔案
+      if (req.file) {
+        const filePath = path.join(process.cwd(), "public", "images", req.file.filename);
+        try { fs.unlinkSync(filePath); } catch (e) {}
+      }
       return sendError(res, "輸入資料驗證失敗", 400, validation.errors);
     }
 
-    // Step 2. 建立事件
     const newEvent = createEventRecord({
       title,
       description,
       date,
       location,
       userId,
+      image,
     });
 
-    // Step 3. 回傳建立的事件
     return sendSuccess(
       res,
       { event: sanitizeEventRecord(newEvent) },
@@ -125,29 +133,47 @@ export const updateEvent = (req, res) => {
     const { title, description, date, location } = req.body;
     const userId = req.user.id;
 
-    // Step 1. 檢查事件是否存在
     const event = getEventById(Number(id));
     if (!event) {
+      // 若上傳了檔案但事件不存在，刪除上傳檔案
+      if (req.file) {
+        try { fs.unlinkSync(path.join(process.cwd(), "public", "images", req.file.filename)); } catch (e) {}
+      }
       return sendError(res, "找不到該事件", 404);
     }
 
-    // Step 2. 檢查是否為事件擁有者
     if (!isEventOwner(Number(id), userId)) {
+      if (req.file) {
+        try { fs.unlinkSync(path.join(process.cwd(), "public", "images", req.file.filename)); } catch (e) {}
+      }
       return sendError(res, "您沒有權限修改此事件", 403);
     }
 
-    // Step 3. 驗證輸入資料
     const validation = validateEventPayload({ title, description, date, location });
     if (!validation.valid) {
+      if (req.file) {
+        try { fs.unlinkSync(path.join(process.cwd(), "public", "images", req.file.filename)); } catch (e) {}
+      }
       return sendError(res, "輸入資料驗證失敗", 400, validation.errors);
     }
 
-    // Step 4. 更新事件
+    // 若有新上傳，刪除舊圖（若存在）
+    let image = event.image || null;
+    if (req.file) {
+      // 刪除舊檔案（若為 /images/xxx）
+      if (event.image) {
+        const oldFile = path.join(process.cwd(), "public", event.image.replace(/^\//, ""));
+        try { if (fs.existsSync(oldFile)) fs.unlinkSync(oldFile); } catch (e) {}
+      }
+      image = `/images/${req.file.filename}`;
+    }
+
     const updatedEvent = updateEventRecord(Number(id), {
       title,
       description,
       date,
       location,
+      image,
     });
 
     return sendSuccess(
@@ -170,21 +196,25 @@ export const deleteEvent = (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
 
-    // Step 1. 檢查事件是否存在
     const event = getEventById(Number(id));
     if (!event) {
       return sendError(res, "找不到該事件", 404);
     }
 
-    // Step 2. 檢查是否為事件擁有者
     if (!isEventOwner(Number(id), userId)) {
       return sendError(res, "您沒有權限刪除此事件", 403);
     }
 
-    // Step 3. 刪除事件
+    // 刪除資料庫紀錄
     const success = deleteEventRecord(Number(id));
     if (!success) {
       return sendError(res, "刪除事件失敗", 500);
+    }
+
+    // 刪除圖片檔案
+    if (event.image) {
+      const imgPath = path.join(process.cwd(), "public", event.image.replace(/^\//, ""));
+      try { if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath); } catch (e) { console.error("刪除圖片失敗:", e.message); }
     }
 
     return sendSuccess(res, null, "事件刪除成功");

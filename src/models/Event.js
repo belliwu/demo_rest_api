@@ -65,6 +65,7 @@ export const sanitizeEvent = (event) => {
     description: event.description,
     date: event.date,
     location: event.location,
+    image: event.image || null, // 新增 image
     userId: event.userId,
     createdAt: event.createdAt,
     updatedAt: event.updatedAt,

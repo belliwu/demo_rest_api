@@ -7,6 +7,7 @@ import {
   deleteEvent,
 } from "../controllers/eventController.js";
 import { authenticate } from "../middleware/auth.js";
+import upload  from "../uploads/upload.js";
 
 /**
  * eventRoutes
@@ -29,10 +30,10 @@ router.use(authenticate);
  * - PUT /:id         ：更新事件（僅擁有者）
  * - DELETE /:id      ：刪除事件（僅擁有者）
  */
-router.post("/", createEvent);
 router.get("/", getEvents);
 router.get("/:id", getEvent);
-router.put("/:id", updateEvent);
+router.post("/", upload.single("image"), createEvent);
+router.put("/:id",upload.single("image"), updateEvent);
 router.delete("/:id", deleteEvent);
 
 export default router;

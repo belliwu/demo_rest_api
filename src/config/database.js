@@ -80,6 +80,7 @@ export const initDatabase = () => {
       description TEXT,
       date TEXT NOT NULL,
       location TEXT,
+      image TEXT,             -- 新增 image 欄位 (相對於 /public)
       user_id INTEGER NOT NULL,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,

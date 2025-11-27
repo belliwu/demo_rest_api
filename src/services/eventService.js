@@ -26,6 +26,7 @@ const mapEventRow = (row) => {
     description: row.description,
     date: row.date,
     location: row.location,
+    image: row.image,              // 新增 image 對應
     userId: row.user_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -55,12 +56,12 @@ export const sanitizeEventRecord = (event) => {
  * @param {Object} eventData - { title, description, date, location, userId }
  * @returns {Object} 建立的事件物件
  */
-export const createEventRecord = ({ title, description, date, location, userId }) => {
+export const createEventRecord = ({ title, description, date, location, userId, image = null }) => {
   const timestamp = new Date().toISOString();
 
   const statement = db.prepare(`
-    INSERT INTO events (title, description, date, location, user_id, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO events (title, description, date, location, image, user_id, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const result = statement.run(
@@ -68,6 +69,7 @@ export const createEventRecord = ({ title, description, date, location, userId }
     description || null,
     date,
     location || null,
+    image || null,
     userId,
     timestamp,
     timestamp
@@ -129,11 +131,11 @@ export const getAllEvents = (userId = null) => {
  */
 export const updateEventRecord = (id, updates) => {
   const timestamp = new Date().toISOString();
-  const { title, description, date, location } = updates;
+  const { title, description, date, location, image = null } = updates;
 
   const statement = db.prepare(`
     UPDATE events
-    SET title = ?, description = ?, date = ?, location = ?, updated_at = ?
+    SET title = ?, description = ?, date = ?, location = ?, image = ?, updated_at = ?
     WHERE id = ?
   `);
 
@@ -142,6 +144,7 @@ export const updateEventRecord = (id, updates) => {
     description || null,
     date,
     location || null,
+    image || null,
     timestamp,
     id
   );
