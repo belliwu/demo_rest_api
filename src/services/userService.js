@@ -3,18 +3,6 @@ import { validateUserData, sanitizeUser } from "../models/User.js";
 import { hashPassword, comparePassword } from "../utils/passwordHelper.js";
 
 /**
- * User Service
- * -------------------------------------------------
- * 集中處理用戶相關的業務邏輯與資料庫操作
- * 
- * 職責：
- * 1. 資料驗證（委派給 User validator）
- * 2. 資料庫 CRUD 操作
- * 3. 密碼處理（委派給 passwordHelper）
- * 4. 資料轉換與清理
- */
-
-/**
  * 將資料庫欄位映射為應用層物件
  * @param {Object} row - 資料庫查詢結果
  * @returns {Object|null} 用戶物件
