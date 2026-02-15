@@ -105,26 +105,36 @@ export const registerEvent = (req, res) => {
  */
 export const unregisterEvent = (req, res) => {
   console.log("\n❌ === 開始取消報名 ===");
-  console.log("活動 ID:", req.params.eventId);
+  console.log("報名 ID:", req.params.registrationId);
   console.log("當前用戶:", req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無");
   
   try {
-    const eventId = Number(req.params.eventId);
+    const registrationId = Number(req.params.registrationId);
     const userId = req.user.id;
 
     // Step 1. 檢查報名記錄是否存在
     console.log("Step 1: 檢查報名記錄");
-    const registration = findRegistration(eventId, userId);
+    // 透過 registrationId 獲取報名記錄
+    const registration = getRegistrationById(registrationId);
     if (!registration) {
       console.log("❌ 未找到報名記錄");
       console.log("❌ === 取消報名失敗 ===\n");
-      return sendError(res, "您尚未報名此活動", 404);
+      return sendError(res, "未找到此報名記錄", 404);
     }
     console.log("✅ 找到報名記錄, ID:", registration.id);
 
-    // Step 2. 取消報名
-    console.log("Step 2: 取消報名");
-    const success = cancelRegistration(registration.id);
+    // Step 2. 驗證擁有權
+    console.log("Step 2: 驗證擁有權");
+    if (!isRegistrationOwner(registrationId, userId)) {
+      console.log("❌ 無權取消此報名");
+      console.log("❌ === 取消報名失敗 ===\n");
+      return sendError(res, "無權取消此報名", 403);
+    }
+    console.log("✅ 擁有權驗證通過");
+
+    // Step 3. 取消報名
+    console.log("Step 3: 取消報名");
+    const success = cancelRegistration(registrationId);
     if (!success) {
       console.log("❌ 取消報名失敗");
       console.log("❌ === 取消報名失敗 ===\n");
