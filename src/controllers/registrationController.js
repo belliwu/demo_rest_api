@@ -20,7 +20,7 @@ import { sendSuccess, sendError } from "../utils/response.js";
  * - cancelRegistration：取消報名
  * - getEventRegistrations：查詢活動的報名名單
  * - getMyRegistrations：查詢使用者自己報名的活動
- * 
+ *
  * 每支方法都遵循以下結構：
  * 1. 解析與驗證請求內容
  * 2. 執行核心商業邏輯（透過 services 與 SQLite 互動）
@@ -34,8 +34,11 @@ import { sendSuccess, sendError } from "../utils/response.js";
 export const registerEvent = (req, res) => {
   console.log("\n📝 === 開始報名活動 ===");
   console.log("活動 ID:", req.params.eventId);
-  console.log("當前用戶:", req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無");
-  
+  console.log(
+    "當前用戶:",
+    req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無",
+  );
+
   try {
     const eventId = Number(req.params.eventId);
     const userId = req.user.id;
@@ -78,17 +81,17 @@ export const registerEvent = (req, res) => {
     console.log("📝 === 報名完成 ===\n");
     return sendSuccess(
       res,
-      { 
+      {
         registration: sanitizeRegistrationRecord(registration),
         event: {
           id: event.id,
           title: event.title,
           date: event.date,
           location: event.location,
-        }
+        },
       },
       "報名成功",
-      201
+      201,
     );
   } catch (error) {
     console.error("❌ 報名過程發生錯誤:");
@@ -106,8 +109,11 @@ export const registerEvent = (req, res) => {
 export const unregisterEvent = (req, res) => {
   console.log("\n❌ === 開始取消報名 ===");
   console.log("報名 ID:", req.params.registrationId);
-  console.log("當前用戶:", req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無");
-  
+  console.log(
+    "當前用戶:",
+    req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無",
+  );
+
   try {
     const registrationId = Number(req.params.registrationId);
     const userId = req.user.id;
@@ -160,8 +166,11 @@ export const unregisterEvent = (req, res) => {
 export const getEventRegistrations = (req, res) => {
   console.log("\n👥 === 查詢活動報名名單 ===");
   console.log("活動 ID:", req.params.eventId);
-  console.log("當前用戶:", req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無");
-  
+  console.log(
+    "當前用戶:",
+    req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無",
+  );
+
   try {
     const eventId = Number(req.params.eventId);
     const userId = req.user.id;
@@ -195,7 +204,7 @@ export const getEventRegistrations = (req, res) => {
         title: event.title,
         date: event.date,
       },
-      registrations: registrations.map(r => ({
+      registrations: registrations.map((r) => ({
         id: r.id,
         userId: r.userId,
         username: r.username,
@@ -220,8 +229,11 @@ export const getEventRegistrations = (req, res) => {
  */
 export const getMyRegistrations = (req, res) => {
   console.log("\n📋 === 查詢我的報名記錄 ===");
-  console.log("當前用戶:", req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無");
-  
+  console.log(
+    "當前用戶:",
+    req.user ? req.user.username + " (ID: " + req.user.id + ")" : "無",
+  );
+
   try {
     const userId = req.user.id;
 
@@ -231,7 +243,7 @@ export const getMyRegistrations = (req, res) => {
 
     console.log("📋 === 查詢完成 ===\n");
     return sendSuccess(res, {
-      registrations: registrations.map(r => ({
+      registrations: registrations.map((r) => ({
         id: r.id,
         eventId: r.eventId,
         eventTitle: r.eventTitle,
